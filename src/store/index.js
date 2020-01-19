@@ -10,6 +10,7 @@ export default new Vuex.Store({
     email: '',
     personalID: '',
     picture: '',
+    access_token: '',
     FB: undefined
   },
   mutations: {
@@ -24,6 +25,9 @@ export default new Vuex.Store({
       state.email = user.email;
       state.personalID = user.id;
       state.picture = user.picture.data.url;
+    },
+    FB_ACCESS_TOKEN(state, token) {
+      state.access_token = token;
     }
   },
   actions: {
@@ -32,6 +36,11 @@ export default new Vuex.Store({
         getters.FB.api('/me', 'GET', { fields: 'id,name,email,picture' },
           user => commit('FB_USER', user)
         )
+        getters.FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+            commit('FB_ACCESS_TOKEN', response.authResponse.accessToken);
+          }
+        });
       }
     },
     fbSdkLoaded({ commit, dispatch }, payload) {
@@ -53,6 +62,7 @@ export default new Vuex.Store({
     email: state => state.email,
     personalID: state => state.personalID,
     picture: state => state.picture,
+    access_token: state => state.access_token,
     FB: state => state.FB,
   }
 })
