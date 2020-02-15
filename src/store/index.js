@@ -40,11 +40,12 @@ export default new Vuex.Store({
         getters.FB.getLoginStatus(function(response) {
           if (response.status === 'connected') {
             commit('FB_ACCESS_TOKEN', response.authResponse.accessToken);
-            axios.post('/auth/login/facebook', {
-              accessToken: response.authResponse.accessToken
+            axios.post('/user/login/facebook', {
+              value: response.authResponse.accessToken
             })
             .then(function (response) {
               axios.defaults.headers.common['Authorization'] = response.data.token;
+              console.log(response.data.token); // eslint-disable-line no-console
               // TODO: Save token locally so user won't have to log back in on refresh
             })
           }
