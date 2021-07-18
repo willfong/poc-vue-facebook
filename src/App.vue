@@ -1,46 +1,39 @@
 <template>
   <div id="app">
     <h1>Welcome to POC-vue-facebook</h1>
-    <div id="nav">
-      <router-link to="/">Home</router-link>|
-      <router-link to="/about">About</router-link>
-      <facebook-login
-        class="button"
-        appId="1841024232697094"
-        @login="onLogin"
-        @logout="onLogout"
-        @get-initial-status="getUserData"
-        @sdk-loaded="sdkLoaded"
-      />
-    </div>
-    <router-view />
+    <v-facebook-login app-id="378044260408997" @sdk-init="handleFbSdk" @login="handleFbLogin" @logout="handleFbLogout"></v-facebook-login>
+    <p>{{fbAuth}}</p>
+    <p>{{fbUser}}</p>
   </div>
 </template>
 
 <script>
-import facebookLogin from "facebook-login-vuejs";
-import { mapGetters } from "vuex";
+import VFacebookLogin from "vue-facebook-login-component";
 
 export default {
   name: "appMain",
   components: {
-    facebookLogin
+    VFacebookLogin
   },
-  computed: {
-    ...mapGetters(["isConnected", "name", "email", "picture", "personalID"])
+  data() {
+    return {
+      FB: {},
+      fbAuth: false,
+      fbUser: false,
+    }
   },
   methods: {
-    getUserData() {
-      this.$store.dispatch("fbGetUserData");
+    handleFbLogin(response) {
+      this.fbAuth = response;
+      this.FB.api('/me', 'GET', { fields: 'id,name,email,picture' }, user => {
+        this.fbUser = user;
+      });
     },
-    sdkLoaded(payload) {
-      this.$store.dispatch("fbSdkLoaded", payload);
+    handleFbLogout(response) {
+      this.fbData = response;
     },
-    onLogin() {
-      this.$store.dispatch("fbOnLogin");
-    },
-    onLogout() {
-      this.$store.dispatch("fbOnLogout");
+    handleFbSdk({ FB }) {
+      this.FB = FB;
     }
   }
 };
